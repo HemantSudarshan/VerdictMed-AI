@@ -1,0 +1,65 @@
+{
+  "cases": [
+    {
+      "case_id": "TC001",
+      "symptoms": "45 year old male with fever x3 days, productive cough with yellow sputum, shortness of breath. Vitals: T 38.5\u00b0C, HR 95, BP 130/85, SpO2 94%",
+      "actual_diagnosis": "Pneumonia",
+      "severity": "moderate"
+    },
+    {
+      "case_id": "TC002",
+      "symptoms": "62 year old female with severe crushing chest pain radiating to left arm, diaphoresis, nausea. Started 30 minutes ago. History of HTN, DM.",
+      "actual_diagnosis": "Myocardial Infarction",
+      "severity": "critical"
+    },
+    {
+      "case_id": "TC003",
+      "symptoms": "28 year old female with chronic cough x6 weeks, night sweats, weight loss of 5kg, low grade fever. Recent travel to endemic area.",
+      "actual_diagnosis": "Tuberculosis",
+      "severity": "high"
+    },
+    {
+      "case_id": "TC004",
+      "symptoms": "35 year old male with runny nose, sore throat, mild cough x2 days. No fever. Denies SOB.",
+      "actual_diagnosis": "Common Cold",
+      "severity": "low"
+    },
+    {
+      "case_id": "TC005",
+      "symptoms": "55 year old male with sudden onset severe headache, confusion, left sided weakness, slurred speech. Started 1 hour ago.",
+      "actual_diagnosis": "Stroke",
+      "severity": "critical"
+    },
+    {
+      "case_id": "TC006",
+      "symptoms": "40 year old female with wheezing, shortness of breath, chest tightness. History of asthma, worse with cold air.",
+      "actual_diagnosis": "Asthma Exacerbation",
+      "severity": "moderate"
+    },
+    {
+      "case_id": "TC007",
+      "symptoms": "50 year old male with burning epigastric pain, worse after meals, some relief with antacids. No alarm symptoms.",
+      "actual_diagnosis": "Gastritis",
+      "severity": "low"
+    },
+    {
+      "case_id": "TC008",
+      "symptoms": "32 year old female with sudden onset dyspnea, pleuritic chest pain, tachycardia. Recent long flight. Leg swelling noted.",
+      "actual_diagnosis": "Pulmonary Embolism",
+      "severity": "critical"
+    },
+    {
+      "case_id": "TC009",
+      "symptoms": "70 year old male with fever, confusion, tachycardia, hypotension. WBC 18000, lactate elevated. Source unclear.",
+      "actual_diagnosis": "Sepsis",
+      "severity": "critical"
+    },
+    {
+      "case_id": "TC010",
+      "symptoms": "25 year old female with dysuria, urinary frequency, suprapubic pain. No fever. Sexually active.",
+      "actual_diagnosis": "Urinary Tract Infection",
+      "severity": "low"
+    }
+  ],
+  "version": "1.0"
+}

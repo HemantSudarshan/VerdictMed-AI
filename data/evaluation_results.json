@@ -1,0 +1,163 @@
+{
+  "timestamp": "2026-01-13T13:53:30.830545",
+  "total_cases": 10,
+  "metrics": {
+    "accuracy": 1.0,
+    "critical_detection_rate": 1.0,
+    "false_negative_rate": 0.0,
+    "escalation_rate": 0.0,
+    "low_confidence_count": 0
+  },
+  "targets": {
+    "accuracy": {
+      "target": 0.85,
+      "met": true
+    },
+    "critical_detection": {
+      "target": 0.95,
+      "met": true
+    },
+    "false_negative_rate": {
+      "target": 0.08,
+      "met": true
+    },
+    "escalation_rate": {
+      "target": "15-25%",
+      "met": false
+    }
+  },
+  "per_disease": {
+    "Pneumonia": {
+      "total": 1,
+      "correct": 1
+    },
+    "Myocardial Infarction": {
+      "total": 1,
+      "correct": 1
+    },
+    "Tuberculosis": {
+      "total": 1,
+      "correct": 1
+    },
+    "Common Cold": {
+      "total": 1,
+      "correct": 1
+    },
+    "Stroke": {
+      "total": 1,
+      "correct": 1
+    },
+    "Asthma Exacerbation": {
+      "total": 1,
+      "correct": 1
+    },
+    "Gastritis": {
+      "total": 1,
+      "correct": 1
+    },
+    "Pulmonary Embolism": {
+      "total": 1,
+      "correct": 1
+    },
+    "Sepsis": {
+      "total": 1,
+      "correct": 1
+    },
+    "Urinary Tract Infection": {
+      "total": 1,
+      "correct": 1
+    }
+  },
+  "individual_results": [
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Pneumonia",
+      "actual": "Pneumonia",
+      "confidence": 0.7571428571428571,
+      "escalated": false,
+      "is_critical": false
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Myocardial Infarction",
+      "actual": "Myocardial Infarction",
+      "confidence": 0.8857142857142857,
+      "escalated": false,
+      "is_critical": true
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Tuberculosis",
+      "actual": "Tuberculosis",
+      "confidence": 0.8600000000000001,
+      "escalated": false,
+      "is_critical": false
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Common Cold",
+      "actual": "Common Cold",
+      "confidence": 0.95,
+      "escalated": false,
+      "is_critical": false
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Stroke",
+      "actual": "Stroke",
+      "confidence": 0.875,
+      "escalated": false,
+      "is_critical": true
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Asthma Exacerbation",
+      "actual": "Asthma Exacerbation",
+      "confidence": 0.8375,
+      "escalated": false,
+      "is_critical": false
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Gastritis",
+      "actual": "Gastritis",
+      "confidence": 0.95,
+      "escalated": false,
+      "is_critical": false
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Pulmonary Embolism",
+      "actual": "Pulmonary Embolism",
+      "confidence": 0.8,
+      "escalated": false,
+      "is_critical": true
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Sepsis",
+      "actual": "Sepsis",
+      "confidence": 0.95,
+      "escalated": false,
+      "is_critical": true
+    },
+    {
+      "success": true,
+      "correct": true,
+      "predicted": "Urinary Tract Infection",
+      "actual": "Urinary Tract Infection",
+      "confidence": 0.8375,
+      "escalated": false,
+      "is_critical": false
+    }
+  ]
+}
