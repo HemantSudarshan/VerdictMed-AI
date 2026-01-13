@@ -21,33 +21,33 @@ The system is built on a scalable **5-Layer Architecture**, ensuring clear separ
 ```mermaid
 graph TD
     subgraph "Application Layer (Frontend)"
-        UI[React Clinical Dashboard]
-        Inputs[Multimodal Input Handler]
-        Vis[Visualization Engine]
+        UI["React Clinical Dashboard"]
+        Inputs["Multimodal Input Handler"]
+        Vis["Visualization Engine"]
     end
 
     subgraph "API Layer"
-        FastAPI[FastAPI Gateway]
-        Auth[Security & Auth]
-        Val[Input Validator]
+        FastAPI["FastAPI Gateway"]
+        Auth["Security & Auth"]
+        Val["Input Validator"]
     end
 
     subgraph "Reasoning Layer (The Brain)"
-        Agent[Diagnostic Agent (LLM)]
-        Fusion[Multimodal Fusion]
-        Safety[Safety Validator]
-        Explain[Explainability Engine (SHAP)]
+        Agent["Diagnostic Agent (LLM)"]
+        Fusion["Multimodal Fusion"]
+        Safety["Safety Validator"]
+        Explain["Explainability Engine (SHAP)"]
     end
 
     subgraph "Perception Layer"
-        Vision[Vision Module (BiomedCLIP)]
-        NLP[NLP Module (SciSpacy)]
+        Vision["Vision Module (BiomedCLIP)"]
+        NLP["NLP Module (SciSpacy)"]
     end
 
     subgraph "Data & Knowledge Layer"
-        KG[(Neo4j Knowledge Graph)]
-        Redis[(Redis Cache)]
-        Vector[(FAISS Vector Store)]
+        KG[("Neo4j Knowledge Graph")]
+        Redis[("Redis Cache")]
+        Vector[("FAISS Vector Store")]
     end
 
     UI --> FastAPI
