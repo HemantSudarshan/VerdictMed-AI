@@ -6,17 +6,17 @@
 [![Neo4j](https://img.shields.io/badge/Neo4j-5.0-008CC1)](https://neo4j.com/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Tests](https://img.shields.io/badge/Tests-83%20Passing-success)](tests/)
-[![MVP Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)]()
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)]()
 
-> **"Reducing diagnostic error and physician burnout through Explainable Multimodal AI."**
+> **"Bridging the gap between raw clinical data and actionable life-saving insights."**
 
-**VerdictMed AI** is a production-grade Clinical Decision Support System (CDSS) that integrates multimodal patient data—medical imaging (DICOM/X-ray), clinical notes, and lab values—into a unified diagnostic reasoning engine. Built with safety and explainability at its core, it leverages Knowledge Graphs and LLMs to provide evidence-based recommendations.
+**VerdictMed AI** is a production-grade Clinical Decision Support System (CDSS) engineered to reduce diagnostic error and physician burnout. Unlike standard black-box AI models, VerdictMed employs a **Neuro-Symbolic architecture**—fusing the generative flexibility of LLMs with the factual rigidity of Knowledge Graphs (GraphRAG)—to provide transparent, evidence-backed diagnostic recommendations.
 
 ---
 
-## 🏗️ System Architecture
+## 🏛️ System Architecture
 
-VerdictMed AI follows a modular **5-Layer Architecture** designed for scalability, interpretability, and safety.
+The system is built on a scalable **5-Layer Architecture**, ensuring clear separation of concerns between perception, reasoning, and data persistence.
 
 ```mermaid
 graph TD
@@ -65,133 +65,132 @@ graph TD
 
 ---
 
-## 🚀 Key Features
+## 💡 Why VerdictMed?
 
-### 1. Multimodal Analysis 👁️🗣️🩸
-- **Medical Imaging**: Analyzes Chest X-rays (DICOM/PNG) using **BiomedCLIP** to detect pathologies like Pneumonia, Cardiomegaly, and Pleural Effusion.
-- **Clinical NLP**: Extracts symptoms, conditions, and entities from unstructured physician notes using **SciSpacy**.
-- **Lab Data**: Contextualizes structured lab values (CBC, metabolic panels) against reference ranges.
+### 1. Neuro-Symbolic Logic (GraphRAG)
+Large Language Models represent probability, but medicine requires accuracy. VerdictMed anchors every LLM prediction against a deterministic **Neo4j Knowledge Graph**. This "Graph Retrieval-Augmented Generation" (GraphRAG) pattern drastically reduces hallucinations by validating generated diagnoses against verified medical ontologies.
 
-### 2. Neuro-Symbolic Reasoning 🧠
-- Combines the flexibility of **LLMs** with the factual precision of a **Neo4j Knowledge Graph**.
-- Maps extracted symptoms to standard **ICD-10 codes**.
-- Validates LLM hypotheses against grounded medical knowledge (Graph RAG).
+### 2. True Multimodal Fusion
+Diagnostic truth rarely lies in a single modality. VerdictMed treats disparate data streams—**DICOM imaging**, **clinical narratives**, and **structured lab values**—as first-class citizens. Our fusion layer synthesizes these inputs into a cohesive patient context vector before reasoning begins.
 
-### 3. Explainability & Trust 🔍
-- **SHAP Integrations**: Visualizes feature importance contributions for every diagnosis.
-- **Reasoning Chains**: Provides transparent, step-by-step logic traces (e.g., *Steps 1-5*).
-- **Evidence Linking**: Ties recommendations directly to patient data sources.
+### 3. Glass-Box Explainability
+A "black box" has no place in a hospital. We implement a multi-faceted explainability engine:
+- **SHAP (SHapley Additive exPlanations)**: Quantifies the exact contribution of each symptom to the final diagnosis.
+- **Reasoning Chains**: Exposes the step-by-step logical deduction path (e.g., *Step 1: Detected consolidation -> Step 2: Correlated with fever -> Step 3: Rules out Heart Failure*).
+- **GradCAM**: Generates heatmaps for X-ray analysis, highlighting the exact pixels driving the AI's decision.
 
-### 4. Safety-First Design 🛡️
-- **Human-in-the-Loop**: High-stakes decisions always flag for physician review.
-- **Critical Alerts**: Real-time warnings for critical conditions (e.g., Sepsis, MI).
-- **Confidence Thresholds**: Automatic referral for low-confidence predictions (<55%).
+### 4. Deterministic Safety Layers
+While the reasoning engine is probabilistic, safety is binary. A dedicated **Safety Validator** enforces rigid protocols:
+- **Critical Alerts**: Immediate flagging of high-mortality conditions (Sepsis, MI, Stroke).
+- **Confidence Floors**: Automatic referral for any prediction under 55% confidence.
+- **Human-in-the-Loop**: The system is designed to *augment*, not replace, the physician, requiring manual sign-off on all high-stakes outputs.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Engineering
 
-| Component | Technology | Role |
-|-----------|------------|------|
-| **Frontend** | React, Tailwind CSS | 3-Column Clinical Dashboard |
-| **Backend** | FastAPI, Python 3.9 | High-performance API Gateway |
-| **Vision** | BiomedCLIP, PyTorch | Zero-shot Medical Image Classification |
-| **NLP** | SciSpacy, regular expressions | Entity Extraction & Negation |
-| **Knowledge** | Neo4j (Cypher) | Disease-Symptom Knowledge Graph |
-| **Explainability** | SHAP, GradCAM | Model Interpretability |
-| **Deployment** | Docker, Docker Compose | Containerized Orchestration |
+| Component | Technology | Engineering Highlights |
+|-----------|------------|------------------------|
+| **Frontend** | React 18, Tailwind | 3-Column "Cockpit" Dashboard, Real-time status updates |
+| **Backend** | FastAPI (Python 3.9) | Async request handling, Pydantic type safety, Swagger docs |
+| **Vision** | BiomedCLIP, PyTorch | Zero-shot classification, DICOM handling via `pydicom` |
+| **NLP** | SciSpacy | Named Entity Recognition (NER) for medical terminology |
+| **Knowledge** | Neo4j (Cypher) | Graph database for modeling disease-symptom relationships via graph algorithms |
+| **Explainability** | SHAP, Custom Logic | Feature importance calculation, Logic trace generation |
+| **Infrastructure** | Docker Compose | One-command orchestration of 5+ services (API, DB, UI, Cache) |
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Getting Started
 
-### Prerequisites
-- Docker & Docker Compose
-- Python 3.9+ (for local dev)
-- Node.js 16+ (for local dev)
+### The Fast Lane: Docker (Recommended)
+Launch the entire production stack in under 2 minutes.
 
-### Option 1: Docker (Recommended)
-Run the entire stack with one command:
 ```bash
-docker-compose up --build
-```
-Access the dashboard at **http://localhost:3000** and API docs at **http://localhost:8000/docs**.
-
-### Option 2: Local Development
-
-**1. Backend Setup**
-```bash
-# Clone repository
+# 1. Clone the repository
 git clone https://github.com/HemantSudarshan/VerdictMed-AI.git
 cd VerdictMed-AI
 
-# Create virtual environment
+# 2. Launch services
+docker-compose up --build
+```
+> **Access:**
+> - **Dashboard:** [http://localhost:3000](http://localhost:3000)
+> - **API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### The Builder's Path: Local Development
+
+<details>
+<summary><strong>Backend Setup (Python)</strong></summary>
+
+```bash
+# Create & activate environment
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run server
+# Run API server
 python -m uvicorn src.api.main:app --reload
 ```
+</details>
 
-**2. Frontend Setup**
+<details>
+<summary><strong>Frontend Setup (Node.js)</strong></summary>
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+</details>
 
 ---
 
-## 🧪 Testing & Quality
+## 🧪 Testing & Verification
 
-VerdictMed AI maintains a high standard of code quality with **~75% test coverage**.
+We adhere to rigorous testing standards suited for medical software. The repository includes a comprehensive suite of **83+ automated tests**.
 
-### Run the Test Suite
 ```bash
-# Run all 83+ unit and integration tests
+# Run the full regression suite
 python -m pytest tests/
 
-# Run specific modules
-python -m pytest tests/unit/test_vision.py
-python -m pytest tests/unit/test_neo4j_service.py
+# Key test modules:
+# - tests/unit/test_vision.py          (Image processing & BiomedCLIP)
+# - tests/unit/test_neo4j_service.py   (Graph database integration)
+# - tests/unit/test_shap_explainer.py  (Explainability logic)
+# - tests/integration/test_pipeline.py (End-to-end diagnostic flow)
 ```
 
-### Safety Validation
-The system includes a dedicated `SafetyValidator` module that enforces:
-- ✅ Confidence > 55%
-- ✅ No critical flag overrides
-- ✅ Data completeness checks
+**Coverage:** ~75% across core modules.
 
 ---
 
-## 📊 Project Gallery
+## 📸 Interface Preview
 
-### Clinical Dashboard
-*(Add your screenshots here)*
-The unified interface organizes patient data, analysis, and AI reasoning into a scan-friendly layout.
+**(Dashboard Screenshot)**
+*The 3-column clinical dashboard provides a unified view: Patient History (Left), Multimodal Inputs (Center), and AI Diagnosis & Reasoning (Right).*
 
-![Dashboard Preview](docs/dashboard_preview.png)
-
----
-
-## 🔮 Future Roadmap
-
-- [ ] **MedSAM Integration**: Detailed graphical segmentation of X-ray anomalies.
-- [ ] **FHIR Support**: Interoperability with standard EMR systems.
-- [ ] **Voice Input**: Speech-to-text for dictating clinical notes.
+![Clinical Dashboard](docs/dashboard_preview.png)
 
 ---
 
-## 👨‍⚕️ Disclaimer
+## 🔮 Roadmap
 
-**VerdictMed AI is a Clinical Decision Support System (CDSS) prototype.** 
-It is intended to **assist** medical professionals, not replace them. All diagnoses must be verified by a qualified physician. This system is not FDA-cleared for autonomous clinical use.
+- [ ] **MedSAM Integration**: Implementing the Segment Anything Model for precise anatomical masking.
+- [ ] **FHIR Interoperability**: Standardizing data exchange with Electronic Health Records (EHR).
+- [ ] **Voice-to-Chart**: Automatic transcription of clinician dictations into structured inputs.
+
+---
+
+## 👨‍⚕️ Medical Disclaimer
+
+**VerdictMed AI is a prototype CDSS for research and demonstration purposes.**
+It is **not** FDA-cleared for clinical use. All outputs must be verified by a licensed medical professional. The system is designed to act as a "second set of eyes," not a replacement for clinical judgment.
 
 ---
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License © 2026 VerdictMed AI Team. See [LICENSE](LICENSE) for details.
