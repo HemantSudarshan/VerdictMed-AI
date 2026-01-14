@@ -6,7 +6,7 @@
 [![Neo4j](https://img.shields.io/badge/Neo4j-5.0-008CC1)](https://neo4j.com/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Tests](https://img.shields.io/badge/Tests-83%20Passing-success)](tests/)
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)]()
+[![Status](https://img.shields.io/badge/Status-UnderDevelopment%20Ready-brightgreen)]()
 
 > **"Bridging the gap between raw clinical data and actionable life-saving insights."**
 
@@ -202,9 +202,7 @@ python -m pytest tests/
 ## 📸 Interface Preview
 
 **(Dashboard Screenshot)**
-*The 3-column clinical dashboard provides a unified view: Patient History (Left), Multimodal Inputs (Center), and AI Diagnosis & Reasoning (Right).*
-
-![Clinical Dashboard](docs/dashboard_preview.png)
+Will be updated after final UI/UX testing, intiatl UI needs to be more resposive
 
 ---
 
