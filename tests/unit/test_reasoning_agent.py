@@ -151,24 +151,145 @@ class TestCriticalSymptoms:
     @pytest.mark.asyncio
     async def test_chest_pain_detection(self, agent):
         """Test chest pain triggers appropriate response"""
-        result = await agent.run(
-            symptoms="Severe chest pain radiating to arm with sweating",
-            patient_id="CRITICAL001"
-        )
+        result = await agent.run({
+            "symptoms": "Severe chest pain radiating to arm with sweating",
+            "patient_id": "CRITICAL001"
+        })
         
         # Should have high requires_review or safety alerts
-        assert result.get("requires_review") == True or len(result.get("safety_alerts", [])) > 0
+        assert result.get("needs_escalation") == True or len(result.get("safety_alerts", [])) > 0
     
     @pytest.mark.asyncio
     async def test_stroke_symptoms(self, agent):
         """Test stroke symptoms"""
-        result = await agent.run(
-            symptoms="Sudden facial droop, slurred speech, arm weakness",
-            patient_id="CRITICAL002"
-        )
+        result = await agent.run({
+            "symptoms": "Sudden facial droop, slurred speech, arm weakness",
+            "patient_id": "CRITICAL002"
+        })
         
         assert result is not None
 
 
+class TestPRDRequirements:
+    """
+    Tests specific to PRD Stage 9.2 requirements.
+    Validates core diagnostic capabilities per specification.
+    """
+    
+    @pytest.fixture
+    def agent(self):
+        return SimpleDiagnosticAgent()
+    
+    @pytest.mark.asyncio
+    async def test_pneumonia_detection(self, agent):
+        """
+        Test typical pneumonia case detection.
+        PRD Requirement: Should identify pneumonia from classic presentation.
+        """
+        result = await agent.run({
+            "symptoms": "Patient reports fever x3 days, productive cough, shortness of breath",
+            "patient_id": "PRD_PNEUMONIA_001"
+        })
+        
+        # Should have reasonable confidence
+        assert result["confidence"] > 0.5, "Pneumonia case should have >50% confidence"
+        
+        # Should include pneumonia in differential
+        differential = result.get("differential_diagnoses", [])
+        pneumonia_found = any(
+            "pneumonia" in d.get("disease", "").lower() or 
+            "respiratory infection" in d.get("disease", "").lower()
+            for d in differential
+        )
+        assert pneumonia_found, "Pneumonia should be in differential diagnoses"
+        
+        # Should extract key symptoms
+        symptoms = result.get("extracted_symptoms", [])
+        symptom_names = [s.get("symptom", "").lower() for s in symptoms]
+        assert any("fever" in s for s in symptom_names), "Should extract fever"
+        assert any("cough" in s for s in symptom_names), "Should extract cough"
+    
+    @pytest.mark.asyncio
+    async def test_low_confidence_escalation(self, agent):
+        """
+        Test that low confidence triggers escalation.
+        PRD Requirement: Vague symptoms should trigger human review.
+        """
+        result = await agent.run({
+            "symptoms": "Patient feels unwell",  # Intentionally vague
+            "patient_id": "PRD_VAGUE_001"
+        })
+        
+        # Should escalate due to insufficient information OR have low confidence
+        escalated = result.get("needs_escalation", False)
+        low_confidence = result.get("confidence", 1.0) < 0.6
+        
+        assert escalated or low_confidence, \
+            "Vague symptoms should trigger escalation or have confidence < 60%"
+        
+        # Should have safety alerts or explanation of uncertainty
+        if not escalated:
+            explanation = result.get("explanation", "")
+            assert explanation, "Should provide explanation even with low confidence"
+    
+    @pytest.mark.asyncio
+    async def test_critical_condition_alert(self, agent):
+        """
+        Test that critical conditions are flagged.
+        PRD Requirement: MI symptoms should trigger critical alerts.
+        """
+        result = await agent.run({
+            "symptoms": "Severe chest pain radiating to left arm, diaphoresis, nausea",
+            "patient_id": "PRD_MI_001"
+        })
+        
+        # Should flag as critical OR have high escalation
+        has_critical_alert = "CRITICAL_CONDITION_DETECTED" in result.get("safety_alerts", [])
+        needs_escalation = result.get("needs_escalation", False)
+        
+        # Should identify cardiac-related condition
+        differential = result.get("differential_diagnoses", [])
+        cardiac_found = any(
+            any(term in d.get("disease", "").lower() 
+                for term in ["myocardial", "heart", "cardiac", "chest pain"])
+            for d in differential
+        )
+        
+        assert has_critical_alert or needs_escalation or cardiac_found, \
+            "MI symptoms should trigger critical response"
+    
+    @pytest.mark.asyncio
+    async def test_negation_handling(self, agent):
+        """
+        Test that negated symptoms are handled correctly.
+        PRD Requirement: Should not diagnose based on denied symptoms.
+        """
+        result = await agent.run({
+            "symptoms": "Patient denies fever, no cough, no chest pain. Reports mild fatigue.",
+            "patient_id": "PRD_NEGATION_001"
+        })
+        
+        # Should not diagnose respiratory conditions
+        symptoms = result.get("extracted_symptoms", [])
+        
+        # Check if fever is properly marked as negated
+        fever_symptoms = [s for s in symptoms if "fever" in s.get("symptom", "").lower()]
+        if fever_symptoms:
+            # If fever was extracted, it should be marked as negated
+            assert any(s.get("negated", False) for s in fever_symptoms), \
+                "Denied fever should be marked as negated"
+        
+        # Should not have high confidence in fever-related conditions
+        differential = result.get("differential_diagnoses", [])
+        if differential:
+            top_diagnosis = differential[0].get("disease", "").lower()
+            # Shouldn't strongly suggest conditions requiring fever
+            confidence = result.get("confidence", 0)
+            if any(term in top_diagnosis for term in ["infection", "flu", "pneumonia"]):
+                assert confidence < 0.75, \
+                    "Should have lower confidence for infection without fever"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+

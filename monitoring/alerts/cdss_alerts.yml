@@ -1,0 +1,62 @@
+# CDSS Prometheus Alert Rules
+# Monitors critical system health and model performance metrics
+
+groups:
+  - name: CDSS Critical Alerts
+    rules:
+      - alert: AccuracyDropped
+        expr: cdss_model_accuracy < 0.85
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Model accuracy below 85%"
+          description: "CDSS accuracy is {{ $value }}%. Immediate investigation required."
+          runbook: "https://docs.cdss.io/runbooks/accuracy-drop"
+      
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, cdss_diagnosis_latency_seconds_bucket) > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "P95 latency exceeds 5 seconds"
+          description: "P95 latency is {{ $value }}s. Check for resource constraints."
+      
+      - alert: EscalationRateHigh
+        expr: rate(cdss_escalations_total[1h]) / rate(cdss_diagnosis_requests_total[1h]) > 0.3
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Escalation rate above 30%"
+          description: "{{ $value | humanizePercentage }} of cases escalating. Model may be underconfident."
+      
+      - alert: FalseNegativeSpike
+        expr: increase(cdss_false_negatives_total[1h]) > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Multiple false negatives detected"
+          description: "{{ $value }} false negatives in last hour. URGENT: Review missed cases."
+      
+      - alert: ServiceDown
+        expr: up{job="cdss-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CDSS API is down"
+          description: "No scrapes successful for 1 minute."
+
+  - name: CDSS Business Alerts
+    rules:
+      - alert: LowDailyVolume
+        expr: increase(cdss_diagnosis_requests_total[24h]) < 100
+        for: 1h
+        labels:
+          severity: info
+        annotations:
+          summary: "Low daily diagnosis volume"
+          description: "Only {{ $value }} diagnoses in 24h. Check for service issues."
