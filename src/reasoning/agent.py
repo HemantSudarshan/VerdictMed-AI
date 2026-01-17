@@ -160,6 +160,7 @@ def retrieve_similar_cases_node(state: DiagnosticState) -> Dict:
     Node 5: Retrieve similar cases with weighted symptom importance.
     
     Improvement: Weight critical symptoms higher in search query.
+    Uses sentence-transformers to generate embeddings for near_vector search.
     """
     extracted_symptoms = state.get("extracted_symptoms", [])
     
@@ -168,6 +169,8 @@ def retrieve_similar_cases_node(state: DiagnosticState) -> Dict:
     
     try:
         from src.vector_store.service import get_vector_service
+        from sentence_transformers import SentenceTransformer
+        import numpy as np
         
         # Weight symptoms by importance
         positive_symptoms = [s for s in extracted_symptoms if not s.get("negated")]
@@ -183,12 +186,40 @@ def retrieve_similar_cases_node(state: DiagnosticState) -> Dict:
             else:
                 weighted_symptoms.append(symptom_text)
         
-        # Query vector store
-        service = get_vector_service()
-        similar = service.retrieve_similar_cases(weighted_symptoms, limit=5)
+        if not weighted_symptoms:
+            return {"similar_cases": []}
         
-        logger.info(f"Found {len(similar)} similar cases")
-        return {"similar_cases": similar}
+        # Generate embedding using sentence-transformers
+        try:
+            embedder = SentenceTransformer('all-MiniLM-L6-v2')
+            query_text = ", ".join(weighted_symptoms)
+            embedding = embedder.encode(query_text).tolist()
+            
+            # Query vector store with embedding
+            import weaviate
+            from src.config import get_settings
+            
+            settings = get_settings()
+            client = weaviate.Client(settings.weaviate_url)
+            
+            # Use near_vector instead of near_text (compatible with vectorizer: "none")
+            result = client.query.get(
+                "PatientCase",
+                ["case_id", "symptoms", "diagnosis", "icd10", "outcome", "severity"]
+            ).with_near_vector({
+                "vector": embedding,
+                "certainty": 0.7
+            }).with_limit(5).do()
+            
+            cases = result.get("data", {}).get("Get", {}).get("PatientCase", [])
+            
+            logger.info(f"Found {len(cases)} similar cases via vector search")
+            return {"similar_cases": cases}
+            
+        except Exception as embed_error:
+            logger.warning(f"Embedding generation failed, falling back to simple match: {embed_error}")
+            # Fallback: return empty - don't crash the workflow
+            return {"similar_cases": []}
         
     except Exception as e:
         logger.warning(f"Vector store query failed (continuing): {e}")

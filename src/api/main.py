@@ -83,8 +83,8 @@ async def global_exception_handler(request, exc):
 # Dependencies
 def get_agent():
     """Get diagnostic agent (lazy loading)"""
-    from src.reasoning.simple_agent import SimpleDiagnosticAgent
-    return SimpleDiagnosticAgent(get_settings())
+    from src.reasoning.agent import LangGraphDiagnosticAgent
+    return LangGraphDiagnosticAgent(get_settings())
 
 
 # Endpoints
