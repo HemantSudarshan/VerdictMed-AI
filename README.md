@@ -3,17 +3,14 @@
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![React](https://img.shields.io/badge/React-18.0-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Neo4j](https://img.shields.io/badge/Neo4j-5.0-008CC1?style=for-the-badge&logo=neo4j&logoColor=white)](https://neo4j.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-83%20Passing-success?style=for-the-badge)](tests/)
-[![Status](https://img.shields.io/badge/Status-MVP%20Ready-brightgreen?style=for-the-badge)]()
+[![Status](https://img.shields.io/badge/Status-Research%20Prototype-blue?style=for-the-badge)]()
 
 ---
 
-### 💬 *"Bridging the gap between raw clinical data and actionable life-saving insights."*
+### *"AI-assisted clinical decision support for medical education and research"*
 
 </div>
 
@@ -21,303 +18,222 @@
 
 ## 🎯 What is VerdictMed AI?
 
-**VerdictMed AI** is a Clinical Decision Support System (CDSS) prototype that:
-- ✅ Analyzes multimodal clinical data (X-rays, text, labs)
-- ✅ Provides AI-assisted diagnostic suggestions with explanations
-- ✅ Enforces safety validations with human-in-the-loop design
-- ✅ Uses Knowledge Graphs to reduce AI hallucinations
+VerdictMed AI is a **research prototype** for AI-assisted clinical diagnosis. It demonstrates how multimodal medical data (symptoms, lab values, X-rays) can be processed and interpreted using modern AI techniques.
 
-### 🧠 Neuro-Symbolic Architecture
-
-VerdictMed combines:
-- **Neural Networks** for pattern recognition (BiomedCLIP for images, SciSpacy for text)
-- **Knowledge Graphs** for structured medical reasoning (Neo4j)
-- **GraphRAG** approach to validate diagnoses against medical ontologies
+**Key Capabilities:**
+- Analyze clinical symptoms using NLP (Natural Language Processing)
+- Interpret lab values against clinical thresholds
+- Analyze chest X-rays using vision AI (BiomedCLIP)
+- Query a medical knowledge graph for symptom-disease relationships
+- Detect conflicts between different data sources
+- Enforce safety validations requiring physician review
 
 ---
 
-## 📊 Project Status
+## 📊 Current Implementation Status
 
-<table>
-<tr>
-<td width="50%">
+### ✅ Completed Components
 
-### ✅ Implemented
-- 🏗️ 5-Layer Architecture
-- 🖼️ Vision Analysis (BiomedCLIP)
-- 📝 NLP Pipeline (SciSpacy)
-- 🧠 Knowledge Graph (Neo4j with fallback)
-- 🎯 Safety Validator
-- 🔍 SHAP Explainability
-- ⚡ FastAPI Backend
-- ⚛️ React Dashboard
-- 🐳 Docker Compose
-- 📊 Prometheus Monitoring
-- 🚨 Alert Rules (6 defined)
-- 🔄 CI/CD Pipeline
-- 📋 83+ Automated Tests
+| Component | Status | Description |
+|-----------|--------|-------------|
+| **NLP Pipeline** | ✅ Done | Symptom extraction, negation detection, abbreviation expansion using SciSpacy |
+| **Lab Processor** | ✅ Done | 25+ lab tests with clinical thresholds, severity scoring, pattern detection |
+| **Vision Module** | ✅ Done | Chest X-ray analysis using BiomedCLIP (zero-shot classification) |
+| **Knowledge Graph** | ✅ Done | Neo4j integration for disease-symptom relationships (with mock fallback) |
+| **Safety Validator** | ✅ Done | Confidence thresholds, critical condition detection, conflict flagging |
+| **Safety Monitor** | ✅ Done | Fallback mechanisms, low-confidence blocking, audit logging |
+| **Multimodal Fusion** | ✅ Done | Weighted scoring (symptoms 30%, labs 35%, image 35%), conflict detection |
+| **API Layer** | ✅ Done | FastAPI with `/diagnose` and `/diagnose-with-image` endpoints |
+| **Explainability** | ✅ Done | SHAP feature importance, reasoning chain generation |
+| **Monitoring** | ✅ Done | Prometheus alerts, incident response runbooks |
+| **CI/CD Pipeline** | ✅ Done | GitHub Actions with canary deployment strategy |
+| **Tests** | ✅ Done | 95+ automated tests across all modules |
 
-</td>
-<td width="50%">
+### 🚧 Not Yet Implemented
 
-### 🚧 In Development
-- 🏥 Full UMLS Integration
-- 🔗 FHIR Interoperability
-- 🎨 GradCAM Heatmaps (module exists)
-- 📈 500+ Case Validation
-- 🗣️ Voice Dictation
-- 🌍 Multi-language Support
-- 📱 Mobile Interface
-
-</td>
-</tr>
-</table>
-
-> **Current Version**: v1.0 MVP - Demonstrates core CDSS capabilities
+| Feature | Status |
+|---------|--------|
+| Full UMLS ontology integration | Planned |
+| FHIR interoperability for EHR systems | Planned |
+| GradCAM heatmaps for X-ray visualization | Partial (module exists, UI pending) |
+| 500+ case validation study | Pending |
+| Mobile application | Planned |
 
 ---
 
-## 🏛️ System Architecture
+## 🏗️ System Architecture
 
 ```
-┌────────────────────────────────────────────────┐
-│          🖥️  PRESENTATION LAYER                │
-│            React Clinical Dashboard             │
-├────────────────────────────────────────────────┤
-│             🔌 API GATEWAY LAYER                │
-│         FastAPI • Async Processing             │
-├────────────────────────────────────────────────┤
-│            🧠 REASONING LAYER                   │
-│   Diagnostic Agent • Safety • Explainability   │
-├────────────────────────────────────────────────┤
-│            👁️  PERCEPTION LAYER                 │
-│      Vision (BiomedCLIP) • NLP (SciSpacy)      │
-├────────────────────────────────────────────────┤
-│           📚 DATA & KNOWLEDGE LAYER             │
-│     Neo4j • Redis • PostgreSQL • Weaviate      │
-└────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    API LAYER (FastAPI)                   │
+│         /diagnose  •  /diagnose-with-image              │
+├─────────────────────────────────────────────────────────┤
+│                   SAFETY MONITOR                         │
+│    Low confidence blocking • Fallback • Audit logging    │
+├─────────────────────────────────────────────────────────┤
+│                 MULTIMODAL FUSION                        │
+│   Symptoms (30%) + Labs (35%) + Image (35%) → Score     │
+│              Conflict Detection & Explanation            │
+├─────────────────────────────────────────────────────────┤
+│                  REASONING LAYER                         │
+│    SimpleDiagnosticAgent • Knowledge Graph Query         │
+├────────────────┬──────────────────┬─────────────────────┤
+│   NLP MODULE   │   LAB PROCESSOR  │   VISION MODULE     │
+│   (SciSpacy)   │   (Thresholds)   │   (BiomedCLIP)      │
+├────────────────┴──────────────────┴─────────────────────┤
+│                  DATA LAYER                              │
+│   Neo4j (Knowledge Graph) • Redis (Cache) • PostgreSQL   │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 💡 Key Features
+## 📚 For MBBS Students & Medical Researchers
 
-### 1. 🧠 Multimodal Analysis
-| Input Type | Processing | Output |
-|-----------|-----------|--------|
-| 🖼️ **X-ray/DICOM** | BiomedCLIP embeddings | Abnormality detection |
-| 📝 **Clinical Notes** | SciSpacy NER + negation | Symptom extraction |
-| 🧪 **Lab Values** | Structured parsing | Biomarker analysis |
+### What This Project Demonstrates
 
-### 2. 🔍 Explainability
-Every diagnosis includes:
-- **SHAP Values**: Feature contribution scores
-- **Reasoning Chains**: Step-by-step logical path
-- **Confidence Scores**: Uncertainty quantification
+1. **How AI processes clinical text**: The NLP module extracts symptoms from free-text notes, handles negation ("patient denies fever"), and expands medical abbreviations (SOB → shortness of breath).
 
-### 3. 🛡️ Safety Validation
-```
-Confidence < 55%?        → Escalate to physician
-Critical Condition?      → Immediate alert
-Signal Conflicts?        → Flag for review
-Missing Key Symptoms?    → Sanity check fail
-```
+2. **How lab values are interpreted**: The lab processor compares values against clinical reference ranges and detects patterns like sepsis (elevated WBC + lactate) or cardiac damage (elevated troponin).
 
----
+3. **How medical images are analyzed**: BiomedCLIP uses vision AI to classify chest X-ray findings (consolidation, effusion, etc.) without requiring disease-specific training.
 
-## 🛠️ Tech Stack
+4. **How knowledge graphs work**: Neo4j stores disease-symptom relationships from medical ontologies, enabling reasoning about which diseases match a patient's symptoms.
 
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **Frontend** | React 18 + Tailwind CSS | Clinical Dashboard |
-| **Backend** | FastAPI (Python 3.10) | API Gateway |
-| **Vision** | BiomedCLIP + PyTorch | Medical Image Analysis |
-| **NLP** | SciSpacy | Clinical Text Processing |
-| **Knowledge** | Neo4j 5.0 | Disease-Symptom Graph |
-| **Caching** | Redis 7 | Performance Optimization |
-| **Database** | PostgreSQL 15 | Data Persistence |
-| **Explainability** | SHAP | Feature Importance |
-| **Monitoring** | Prometheus + Grafana | Observability |
-| **Infrastructure** | Docker Compose | Service Orchestration |
+5. **Why safety layers matter**: The system demonstrates how AI must handle uncertainty, flag conflicts, and require human oversight for clinical decisions.
 
----
+### Research Applications
 
-## ⚡ Quick Start
+| Research Area | How VerdictMed Helps |
+|---------------|----------------------|
+| **Medical AI Safety** | Study how systems handle conflicting signals, low confidence, and edge cases |
+| **Clinical NLP** | Evaluate symptom extraction accuracy on different note styles |
+| **Multimodal Fusion** | Compare weighting schemes for combining text, labs, and imaging |
+| **Explainability** | Study how SHAP values and reasoning chains improve physician trust |
+| **Knowledge Graphs** | Explore graph-based medical reasoning vs. pure neural approaches |
 
-### 🐳 Docker (Recommended)
+### Limitations to Understand
+
+- **NOT for clinical use**: This is a research prototype, not FDA-cleared software
+- **Dataset bias**: Models trained on public datasets (NIH ChestX-ray14) have known demographic biases
+- **No real validation**: Accuracy claims are based on test data, not clinical trials
+- **Mock components**: Some features (like full UMLS integration) use simplified mock implementations
+
+### Setting Up for Research
 
 ```bash
-# Clone repository
+# Clone the repository
 git clone https://github.com/HemantSudarshan/VerdictMed-AI.git
 cd VerdictMed-AI
 
-# Start all services
+# Option 1: Docker (easiest)
 docker-compose up --build
 
-# Wait ~30 seconds for services to initialize
-```
-
-**Access Points:**
-- 🖥️ **Dashboard**: http://localhost:3000 (React UI)
-- 🔌 **API Docs**: http://localhost:8000/docs (Swagger)
-- 📊 **Grafana**: http://localhost:3000 (Monitoring - admin/admin)
-- 🔍 **Neo4j Browser**: http://localhost:7474 (neo4j/secure_password)
-
----
-
-### 💻 Local Development
-
-<details>
-<summary><strong>Backend Setup</strong></summary>
-
-```bash
-# Create virtual environment
+# Option 2: Local Python
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Start API (requires Docker services running)
 uvicorn src.api.main:app --reload
 ```
-</details>
 
-<details>
-<summary><strong>Frontend Setup</strong></summary>
+**Access:**
+- API Docs: http://localhost:8000/docs
+- Neo4j Browser: http://localhost:7474 (neo4j/secure_password)
+- Grafana: http://localhost:3000 (admin/admin)
 
-```bash
-cd frontend
-npm install
-npm run dev
+### Example API Usage
+
+```python
+import requests
+
+# Text-based diagnosis
+response = requests.post(
+    "http://localhost:8000/api/v1/diagnose",
+    json={
+        "symptoms": "Patient has fever for 3 days, productive cough, and shortness of breath",
+        "lab_results": {
+            "wbc": 15.2,
+            "crp": 45.0,
+            "procalcitonin": 0.8
+        }
+    },
+    headers={"X-API-Key": "your-api-key"}
+)
+
+result = response.json()
+print(f"Diagnosis: {result['primary_diagnosis']['disease']}")
+print(f"Confidence: {result['confidence']:.1%}")
+print(f"Lab Flags: {result.get('lab_findings', {}).get('flags', [])}")
 ```
-</details>
+
+### Key Files to Study
+
+| File | Purpose |
+|------|---------|
+| `src/nlp/clinical_nlp.py` | Symptom extraction and negation detection |
+| `src/nlp/lab_processor.py` | Lab value interpretation with clinical thresholds |
+| `src/vision/biomedclip.py` | Chest X-ray analysis using vision AI |
+| `src/reasoning/simple_agent.py` | Main diagnostic workflow and multimodal fusion |
+| `src/safety/validator.py` | Safety checks and conflict detection |
+| `src/safety/safety_monitor.py` | Fallback mechanisms and blocking logic |
+| `src/knowledge_graph/query_engine.py` | Neo4j graph queries |
 
 ---
 
-## 🧪 Testing
+## 🧪 Running Tests
 
 ```bash
 # Run all tests
-pytest tests/ -v
+python -m pytest tests/ -v
 
-# Run PRD-specific diagnostic tests
-pytest tests/unit/test_reasoning_agent.py::TestPRDRequirements -v
+# Run specific module tests
+python -m pytest tests/unit/test_lab_processor.py -v
+python -m pytest tests/unit/test_safety_monitor.py -v
+python -m pytest tests/unit/test_reasoning_agent.py -v
 
 # Run with coverage
-pytest tests/ --cov=src --cov-report=html
+python -m pytest tests/ --cov=src --cov-report=html
 ```
 
-### Test Coverage
-
-| Module | Tests | Coverage |
-|--------|-------|----------|
-| Vision | 12 | 85% |
-| NLP | 15 | 80% |
-| Reasoning | 20 | 75% |
-| Safety | 18 | 88% |
-| Knowledge Graph | 12 | 82% |
-| API | 6 | 70% |
-
-**Total**: 83+ tests, ~75% overall coverage
+**Current Test Coverage:** ~75% across 95+ test cases
 
 ---
 
-## 📊 Monitoring & Alerts
+## 📈 Monitoring & Alerts
 
-### Prometheus Alert Rules
+Six production-grade Prometheus alerts defined in `monitoring/alerts/cdss_alerts.yml`:
 
-6 production-grade alerts defined in [`monitoring/alerts/cdss_alerts.yml`](monitoring/alerts/cdss_alerts.yml):
-
-| Alert | Condition | Severity |
-|-------|-----------|----------|
-| **AccuracyDropped** | Accuracy < 85% for 5m | Critical |
-| **HighLatency** | P95 latency > 5s | Warning |
-| **EscalationRateHigh** | > 30% escalation rate | Warning |
-| **FalseNegativeSpike** | > 5 false negatives/hour | Critical |
-| **ServiceDown** | API unavailable | Critical |
-| **LowDailyVolume** | < 100 diagnoses/day | Info |
-
-### Incident Response
-
-Full runbooks in [`docs/runbooks/incident-response.md`](docs/runbooks/incident-response.md)
+| Alert | Trigger | Severity |
+|-------|---------|----------|
+| AccuracyDropped | Accuracy < 85% for 5min | Critical |
+| FalseNegativeSpike | >5 false negatives/hour | Critical |
+| ServiceDown | API unavailable 1min | Critical |
+| HighLatency | P95 > 5 seconds | Warning |
+| EscalationRateHigh | >30% escalation rate | Warning |
+| LowDailyVolume | <100 diagnoses/day | Info |
 
 ---
 
-## 🚀 CI/CD Pipeline
+## ⚖️ Medical & Legal Disclaimer
 
-Automated via GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)):
+**⚠️ RESEARCH PROTOTYPE ONLY**
 
-**Continuous Integration** (every commit):
-- ✅ Linting (Ruff) + Type checking (MyPy)
-- ✅ Unit & integration tests
-- ✅ Security scanning (Trivy)
-- ✅ Docker build
-
-**Continuous Deployment**:
-- **Staging** (on `develop`): Auto-deploy + smoke tests
-- **Production** (on `main`): Canary deployment (5% → validate → 100%) with auto-rollback
-
----
-
-## 📚 Documentation
-
-- [Architecture Deep Dive](src/README.md)
-- [Alert Rules](monitoring/alerts/cdss_alerts.yml)
-- [Incident Response](docs/runbooks/incident-response.md)
-- [Fusion Strategy](src/fusion/README.md)
-
----
-
-## 🔮 Roadmap
-
-### Short-term
-- [ ] Complete 500+ case validation study
-- [ ] Full UMLS ontology integration
-- [ ] FHIR R4 support for EHR integration
-
-### Long-term
-- [ ] GradCAM heatmap UI integration
-- [ ] Voice dictation support
-- [ ] Multi-language clinical notes
-- [ ] Mobile application
-
----
-
-## ⚖️ Legal & Compliance
-
-### 🏥 Medical Disclaimer
-
-**VerdictMed AI is a research prototype for demonstration purposes.**
-
-- ❌ **NOT FDA-cleared** for clinical use
-- ❌ **NOT a replacement** for physician judgment
-- ✅ **DESIGNED AS** a decision support tool requiring human oversight
-- ✅ **REQUIRES** physician sign-off on all recommendations
-
-### Data & Privacy
-- Encryption: AES-256 for sensitive data
-- Audit logging: Complete request/response trail
-- No real patient data used in public demo
+- This system is **NOT FDA-cleared** for clinical use
+- **NOT a replacement** for physician judgment
+- All outputs require verification by qualified healthcare providers
+- Designed for **educational and research purposes only**
+- No real patient data should be processed without proper IRB approval
 
 ---
 
 ## 📄 License
 
-**MIT License** © 2026 VerdictMed AI Team
-
-Open source and free to use. See [LICENSE](LICENSE) for details.
+MIT License © 2026 VerdictMed AI
 
 ---
 
 <div align="center">
 
-### 🎯 Built for Medical AI Research
-
-**[⬆ Back to Top](#-verdictmed-ai---clinical-decision-support-system)**
-
----
-
-**Last Updated:** January 17, 2026 | **Status:** MVP Prototype
+**Last Updated:** January 17, 2026 | **Status:** Research Prototype
 
 </div>
