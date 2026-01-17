@@ -228,6 +228,147 @@ async def list_common_symptoms():
     }
 
 
+# Review Workflow Endpoints
+
+class ConfirmRequest(BaseModel):
+    """Request model for diagnosis confirmation"""
+    doctor_id: str = Field(..., description="ID of confirming doctor")
+    confirmed: bool = Field(..., description="True if AI was correct")
+    actual_diagnosis: Optional[str] = Field(None, description="Actual diagnosis if different")
+    actual_icd10: Optional[str] = Field(None, description="Actual ICD-10 code")
+    notes: Optional[str] = Field(None, description="Doctor's notes")
+
+
+class EscalateRequest(BaseModel):
+    """Request model for case escalation"""
+    escalated_by: str = Field(..., description="User initiating escalation")
+    specialist_id: str = Field(..., description="Specialist to escalate to")
+    reason: str = Field(..., description="Escalation reason")
+    notes: Optional[str] = Field(None, description="Additional notes")
+
+
+@app.get("/api/v1/reviews/pending", dependencies=[Depends(get_api_key)])
+async def get_pending_reviews(
+    doctor_id: Optional[str] = None,
+    min_confidence: Optional[float] = None,
+    max_confidence: Optional[float] = None,
+    escalated_only: bool = False,
+    limit: int = 50
+):
+    """
+    Get diagnoses pending doctor review.
+    Returns cases needing human-in-the-loop confirmation.
+    """
+    try:
+        from src.services.review_service import get_review_service
+        
+        review_service = get_review_service()
+        pending = review_service.get_pending_reviews(
+            doctor_id=doctor_id,
+            min_confidence=min_confidence,
+            max_confidence=max_confidence,
+            escalated_only=escalated_only,
+            limit=limit
+        )
+        
+        return {
+            "count": len(pending),
+            "reviews": pending
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get pending reviews: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/reviews/{diagnosis_id}/confirm", dependencies=[Depends(get_api_key)])
+async def confirm_diagnosis(diagnosis_id: str, request: ConfirmRequest):
+    """
+    Doctor confirms or rejects AI diagnosis.
+    Records actual diagnosis for accuracy tracking.
+    """
+    try:
+        from src.services.review_service import get_review_service
+        
+        review_service = get_review_service()
+        result = review_service.confirm_diagnosis(
+            diagnosis_id=diagnosis_id,
+            doctor_id=request.doctor_id,
+            confirmed=request.confirmed,
+            actual_diagnosis=request.actual_diagnosis,
+            actual_icd10=request.actual_icd10,
+            notes=request.notes
+        )
+        
+        return result
+        
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to confirm diagnosis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/reviews/{diagnosis_id}/escalate", dependencies=[Depends(get_api_key)])
+async def escalate_case(diagnosis_id: str, request: EscalateRequest):
+    """
+    Escalate case to specialist for second opinion.
+    Adds to specialist's review queue.
+    """
+    try:
+        from src.services.review_service import get_review_service
+        
+        review_service = get_review_service()
+        result = review_service.escalate_to_specialist(
+            diagnosis_id=diagnosis_id,
+            escalated_by=request.escalated_by,
+            specialist_id=request.specialist_id,
+            reason=request.reason,
+            notes=request.notes
+        )
+        
+        return result
+        
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Failed to escalate case: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/reviews/stats", dependencies=[Depends(get_api_key)])
+async def get_review_stats(
+    doctor_id: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None
+):
+    """
+    Get review statistics for monitoring.
+    Returns accuracy, escalation rate, and volume metrics.
+    """
+    try:
+        from src.services.review_service import get_review_service
+        from datetime import datetime
+        
+        review_service = get_review_service()
+        
+        # Parse dates if provided
+        start = datetime.fromisoformat(start_date) if start_date else None
+        end = datetime.fromisoformat(end_date) if end_date else None
+        
+        stats = review_service.get_review_stats(
+            doctor_id=doctor_id,
+            start_date=start,
+            end_date=end
+        )
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"Failed to get review stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Prometheus metrics endpoint
 @app.get("/metrics")
 async def metrics():
@@ -252,3 +393,4 @@ This is NOT a replacement for professional medical judgment.
 async def get_disclaimer():
     """Get medical AI disclaimer"""
     return {"disclaimer": DISCLAIMER}
+
