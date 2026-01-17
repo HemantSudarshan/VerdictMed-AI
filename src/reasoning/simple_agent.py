@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from loguru import logger
 
 from src.nlp.clinical_nlp import ClinicalNLPPipeline
+from src.nlp.lab_processor import get_lab_processor, LabProcessor
 from src.safety.validator import SafetyValidator
 from src.cache.redis_service import get_redis_service
 
@@ -36,6 +37,7 @@ class SimpleDiagnosticAgent:
         self.nlp = ClinicalNLPPipeline(load_models=False)  
         self.safety = SafetyValidator(config)
         self.cache = get_redis_service()
+        self.lab_processor = get_lab_processor()
         
         # Executor for CPU-bound tasks (NLP, Image Analysis, Network calls if sync)
         self.executor = ThreadPoolExecutor(max_workers=4)
@@ -97,11 +99,13 @@ class SimpleDiagnosticAgent:
             "patient_id": patient_data.get("patient_id", ""),
             "extracted_symptoms": [],
             "extracted_vitals": {},
+            "lab_findings": {},
             "image_findings": {},
             "kg_diseases": [],
             "differential_diagnoses": [],
             "primary_diagnosis": {},
             "confidence": 0.0,
+            "modality_scores": {},
             "conflicts_detected": [],
             "safety_alerts": [],
             "needs_escalation": False,
@@ -139,6 +143,11 @@ class SimpleDiagnosticAgent:
         # Wait for Image (if any)
         if image_task:
             result["image_findings"] = await image_task
+        
+        # 2b. Lab Processing (if provided)
+        lab_results = patient_data.get("labs") or patient_data.get("lab_results")
+        if lab_results:
+            result["lab_findings"] = self.lab_processor.process(lab_results)
             
         # 3. Knowledge Graph Query (IO bound - but running in thread here for simplicity)
         positive_symptoms = [
@@ -153,8 +162,12 @@ class SimpleDiagnosticAgent:
                 positive_symptoms
             )
         
-        # 4. Reasoning & Safety (CPU bound but fast)
-        # Generate differential
+        # 4. Multimodal Fusion & Reasoning
+        fusion_result = self._fuse_modalities(result)
+        result["modality_scores"] = fusion_result["modality_scores"]
+        result["conflicts_detected"] = fusion_result["conflicts"]
+        
+        # Generate differential with fusion scores
         differential = self._generate_differential(result)
         result["differential_diagnoses"] = differential
         
@@ -206,6 +219,101 @@ class SimpleDiagnosticAgent:
             except Exception as e:
                 logger.error(f"KG query failed: {e}")
         return []
+    
+    def _fuse_modalities(self, state: Dict) -> Dict:
+        """
+        Fuse signals from multiple modalities with weighted scoring.
+        
+        Weights:
+        - Symptoms (NLP): 0.30
+        - Labs: 0.35
+        - Image: 0.35
+        
+        Returns:
+            Dict with modality_scores and conflicts
+        """
+        modality_scores = {}
+        conflicts = []
+        
+        # Score each modality (0-1 scale for infection/abnormality)
+        
+        # 1. Symptom Score
+        symptoms = state.get("extracted_symptoms", [])
+        positive_symptoms = [s for s in symptoms if not s.get("negated", False)]
+        infection_keywords = ["fever", "cough", "fatigue", "chills", "pain"]
+        
+        symptom_score = 0.0
+        if positive_symptoms:
+            infection_count = sum(1 for s in positive_symptoms 
+                                  if any(k in s.get("symptom", "").lower() for k in infection_keywords))
+            symptom_score = min(1.0, infection_count / 3)  # 3+ infection symptoms = 1.0
+        modality_scores["symptoms"] = symptom_score
+        
+        # 2. Lab Score
+        lab_findings = state.get("lab_findings", {})
+        lab_score = lab_findings.get("severity_score", 0.0)
+        modality_scores["labs"] = lab_score
+        
+        # 3. Image Score
+        image_findings = state.get("image_findings", {})
+        image_score = 0.0
+        if image_findings.get("top_finding"):
+            image_conf = image_findings.get("confidence", 0.5)
+            # Higher score for abnormal findings
+            if image_findings.get("is_abnormal", True):
+                image_score = image_conf
+        modality_scores["image"] = image_score
+        
+        # 4. Conflict Detection
+        scores = [s for s in [symptom_score, lab_score, image_score] if s > 0]
+        if len(scores) >= 2:
+            max_diff = max(scores) - min(scores)
+            if max_diff > 0.5:  # Significant disagreement
+                high_mod = [k for k, v in modality_scores.items() if v == max(scores)][0]
+                low_mod = [k for k, v in modality_scores.items() if v == min(scores)][0]
+                conflicts.append({
+                    "type": "MODALITY_DISAGREEMENT",
+                    "description": f"{high_mod.title()} suggests positive ({max(scores):.2f}) but {low_mod.title()} suggests negative ({min(scores):.2f})",
+                    "recommendation": "Specialist review recommended due to conflicting signals"
+                })
+        
+        # Check specific conflicts
+        lab_flags = lab_findings.get("flags", [])
+        if lab_score > 0.6 and image_score < 0.3 and image_findings.get("top_finding"):
+            conflicts.append({
+                "type": "LAB_IMAGE_CONFLICT",
+                "description": "Labs indicate infection/abnormality but image appears normal",
+                "recommendation": "Consider early-stage disease or image limitations"
+            })
+        
+        if symptom_score > 0.7 and lab_score < 0.2 and lab_findings:
+            conflicts.append({
+                "type": "SYMPTOM_LAB_CONFLICT",
+                "description": "Strong symptoms but labs are normal",
+                "recommendation": "Consider functional/psychological causes or repeat labs"
+            })
+        
+        # 5. Calculate weighted fusion score
+        weights = {"symptoms": 0.30, "labs": 0.35, "image": 0.35}
+        
+        # Only use available modalities
+        available_weight = 0.0
+        weighted_score = 0.0
+        for modality, weight in weights.items():
+            if modality_scores.get(modality, 0) > 0 or (modality == "symptoms" and symptoms):
+                available_weight += weight
+                weighted_score += modality_scores.get(modality, 0) * weight
+        
+        # Normalize to available modalities
+        fusion_score = weighted_score / available_weight if available_weight > 0 else 0.0
+        modality_scores["fusion"] = fusion_score
+        modality_scores["data_completeness"] = available_weight
+        
+        return {
+            "modality_scores": modality_scores,
+            "conflicts": conflicts,
+            "fusion_score": fusion_score
+        }
 
     # --- Reusing existing logic from synchronous agent ---
     
